@@ -28,6 +28,33 @@ strptime = datetime.strptime
 context_today = fields.Date.context_today
 from_string = fields.Date.from_string
 
+
+class HrContractNewsCategories(models.Model):
+    _name = 'hr_contract.news.categories'
+    _description = 'Contract News Categories'
+
+    name = fields.Char()
+
+
+class HrContractNewsConcepts(models.Model):
+    _name = 'hr_contract.news.concepts'
+    _description = 'Contract News Concepts'
+
+    active = fields.Boolean('Active', default=True)
+    code = fields.Char(string='Code', size=8, required=False)
+    name = fields.Char(string="Name", size=64, required=True)
+    description = fields.Text(
+        'Description',
+        help="A brief explanation about this new."
+    )
+
+    contract_new_category_id = fields.Many2one(comodel_name="hr_contract.news.categories",
+                                               string="Categoria Novedad", required=False, )
+    salary_rule_ids = fields.Many2many('hr.salary.rule', 'salary_rule_contract_news_rel',
+                                       'news_id', 'salary_rule_id', 'Salary Rules',)
+    special_new= fields.Boolean(string="Novedad Especial",  )
+
+
 class HrContractNews(models.Model):
     _name = "hr.contract.news"
     _description = "News"
