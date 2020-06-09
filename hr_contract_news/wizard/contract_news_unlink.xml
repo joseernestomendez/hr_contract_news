@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="payroll_news_unlink_wizard" model="ir.ui.view">
+            <field name="name">Desenlazar novedades del contrato</field>
+            <field name="model">contract.news.unlink.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group colspan="2">
+                            <div>
+                                <h2>Instrucciones</h2>
+                                <span class='instructions'>
+                                  Utilice este asistente desvincular todas las novedades seleccionadas en un tipo de
+                                    contrato especifico de manera automatica.
+                                </span>
+                            </div>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="contract_type_id"/>
+                        </group>
+                    </group>
+                    <group>
+
+                    </group>
+                        <field name="contract_news_concepts_ids"/>
+                    <group>
+
+                    </group>
+                    <footer>
+                        <button type="object" name="do_mass_unlink"
+                                string="Mass Unlink" class="oe_highlight"
+                                confirm="Esta accion eliminara todas las novedades seleccionadas para todos los
+                                contratos activos de este tipo, esta seguro que desea
+                                continuar? Una vez finalizada la accion se abrira el asistente para cargar las
+                                nuevas novedades."/>
+                        <button special="cancel" string="Cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- More button Action -->
+        <act_window id="payroll_news_upload.action_unlink_wizard"
+            name="Desenlazar novedades del contrato" src_model="hr.payslip.run" res_model="contract.news.unlink.wizard"
+            view_mode="form" target="new" multi="False"/>
+
+    </data>
+</openerp>

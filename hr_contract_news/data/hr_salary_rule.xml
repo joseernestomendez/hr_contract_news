@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Regla Sueldo Base -->
+        <record id="hr_payroll.hr_rule_basic" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.BASIC"/>
+            <field name="sequence">1</field>
+            <field name="name">Sueldo base</field>
+            <field name="code">BASIC</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">if contract.schedule_pay == 'fortnightly':
+    result = contract.wage / 2
+elif contract.schedule_pay == 'monthly':
+    result = contract.wage
+elif contract.schedule_pay == 'bi-monthly':
+    result = contract.wage / 2
+elif contract.schedule_pay == 'weekly':
+    result = contract.wage / 4
+else:
+    result = contract.wage</field>
+            <field name="account_credit"></field>
+            <field name="account_debit"></field>
+            <field name="employee_news_ids" ref=""/>
+        </record>
+
+        <!-- Regla Sueldo Bruto -->
+        <record id="hr_payroll.hr_rule_taxable" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.GROSS"/>
+            <field name="sequence">108</field>
+            <field name="name">Sueldos mas incentivos</field>
+            <field name="code">GROSS</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = categories.BASIC + categories.ALW + categories.ALWND + categories.ALWEX</field>
+            <field name="account_credit" ref=""></field>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Sueldo Neto -->
+        <record id="hr_payroll.hr_rule_net" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="sequence">200</field>
+            <field name="name">Total devengado</field>
+            <field name="code">NET</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = (categories.BASIC + categories.ALW + categories.ALWND + categories.ALWEX) - (categories.DED + categories.RETRIBD + categories.RETRIB + categories.DED1)</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Seguro familiar de saludo (Aporte empleado) -->
+        <record id="hr_payroll.hr_salary_rule_SFS" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_8"/>
+            <field name="sequence">20</field>
+            <field name="name">Seguro familiar de salud</field>
+            <field name="code">SFS</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">if (contract.wage + categories.ALW) &lt; 98550.00:
+    result = (categories.BASIC + categories.ALW)*0.0304
+elif (contract.wage + categories.ALW) &gt; 98550.00:
+    result = ((98550)*0.0304) / 2</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Fondo de pensiones (Aporte empleado) -->
+        <record id="hr_payroll.hr_salary_rule_AFP" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_8"/>
+            <field name="sequence">22</field>
+            <field name="name">Fondo de pensiones</field>
+            <field name="code">AFP</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">if (contract.wage + categories.ALW) &lt;= 197100.00:
+    result = ((categories.BASIC)+categories.ALW)*0.0287
+elif (contract.wage + categories.ALW) &gt; 197101.00:
+    result = ((197101.00)*0.0287) / 2</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Seguro familiar de salud (Aporte empleador) -->
+        <record id="hr_payroll.hr_salary_rule_SFSAE" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="sequence">23</field>
+            <field name="name">Seguro familiar de salud</field>
+            <field name="code">SFS-AE</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">if (contract.wage + categories.ALW) &lt;= 98550.00:
+    result = (categories.BASIC + categories.ALW)*0.0709
+elif (contract.wage + categories.ALW) &gt; 98550.00:
+    result = ((98550)*0.0709) / 2</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Fondo de pensiones (Aporte empleador) -->
+        <record id="hr_payroll.hr_salary_rule_AFPAE" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="sequence">24</field>
+            <field name="name">Fondo de pensiones</field>
+            <field name="code">AFP-AE</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">if (contract.wage + categories.ALW) &lt;= 197100.00:
+    result = ((categories.BASIC)+categories.ALW)*0.0710
+elif (contract.wage + categories.ALW) &gt; 197101.00:
+    result = ((197101.00)*0.0710) / 2</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Riesgo laboral -->
+        <record id="hr_payroll.hr_salary_rule_RL" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="sequence">25</field>
+            <field name="name">Riesgo laboral</field>
+            <field name="code">RL-AE</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">if (contract.wage + categories.ALW) &lt;= (9855 * 4):
+    result = ((categories.BASIC)+categories.ALW)*0.0115
+elif (contract.wage + categories.ALW) &gt; (9855 * 4):
+    result = ((8645 * 4) * 0.0115) / 2</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Infotep-->
+        <record id="hr_payroll.hr_salary_rule_IF" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="sequence">26</field>
+            <field name="name">Infotep</field>
+            <field name="code">INF-AE</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = ((categories.BASIC)+categories.ALW)*0.01</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla PARAMS-->
+        <record id="hr_payroll.hr_salary_rule_PARAMS" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_13"/>
+            <field name="sequence">100</field>
+            <field name="name">PARAMS</field>
+            <field name="code">INF-AE</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = payslip.payment_period == "1"</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = (categories.BASIC + categories.ALW + categories.ALWND) - categories.RETRIBD</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Parametros Quincena Anterior-->
+        <record id="hr_payroll.hr_salary_rule_PQA" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_10"/>
+            <field name="sequence">0</field>
+            <field name="name">Parametros Quincena Anterior</field>
+            <field name="code">PQA</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = payslip.payment_period == "2"</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = payslip.sum("PARAMS", "2017-05-01", "2017-05-15")</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+        </record>
+
+        <!-- Regla Seguro complementario de salud-->
+        <record id="hr_payroll.hr_salary_rule_SEGCOMP" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">25</field>
+            <field name="name">Seguro Complementario</field>
+            <field name="code">SEGCOMP</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['SEGCOMP'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_16')])]"/>
+        </record>
+
+        <!-- Regla Adelantos de sueldo-->
+        <record id="hr_payroll.hr_salary_rule_ADSUEL" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">26</field>
+            <field name="name">Adelantos de sueldo</field>
+            <field name="code">ADSUEL</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['ADSUEL'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_17')])]"/>
+        </record>
+
+        <!-- Regla Cuenta por cobrar empleados-->
+        <record id="hr_payroll.hr_salary_rule_CXCEMP" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">27</field>
+            <field name="name">Cuentas por Cobrar Empleados</field>
+            <field name="code">CXCEMP</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['CXCEMP'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_18')])]"/>
+        </record>
+
+        <!-- Regla Optica-->
+        <record id="hr_payroll.hr_salary_rule_OPT" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">28</field>
+            <field name="name">Optica</field>
+            <field name="code">OPT</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['OPT'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_19')])]"/>
+        </record>
+
+        <!-- Regla Plan funerario-->
+        <record id="hr_payroll.hr_salary_rule_PLANFUN" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">29</field>
+            <field name="name">Plan Funerario</field>
+            <field name="code">PLANFUN</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['PLANFUN'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_20')])]"/>
+        </record>
+
+        <!-- Regla Seguro Dental-->
+        <record id="hr_payroll.hr_salary_rule_SEGDENT" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">30</field>
+            <field name="name">Seguro Dental</field>
+            <field name="code">SEGDENT</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['SEGDENT'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_21')])]"/>
+        </record>
+
+        <!-- Regla Uniforme-->
+        <record id="hr_payroll.hr_salary_rule_UNIF" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">31</field>
+            <field name="name">Uniforme</field>
+            <field name="code">UNIF</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['UNIF'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_22')])]"/>
+        </record>
+
+        <!-- Regla Membresía Gimnasio-->
+        <record id="hr_payroll.hr_salary_rule_MEMGIM" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">32</field>
+            <field name="name">Membresía Gimnasio</field>
+            <field name="code">MEMGIM</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['MEMGIM'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_23')])]"/>
+        </record>
+
+        <!-- Regla Membresía Club-->
+        <record id="hr_payroll.hr_salary_rule_MEMCLUB" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">33</field>
+            <field name="name">Membresía Club</field>
+            <field name="code">MEMCLUB</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['MEMCLUB'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_24')])]"/>
+        </record>
+
+        <!-- Regla Útiles Escolares y Colegiatura-->
+        <record id="hr_payroll.hr_salary_rule_UTIL" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">34</field>
+            <field name="name">Útiles Escolares y Colegiatura</field>
+            <field name="code">UTIL</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['UTIL'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_25')])]"/>
+        </record>
+
+        <!-- Regla Ahorro Cooperativa-->
+        <record id="hr_payroll.hr_salary_rule_AHCOOP" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">35</field>
+            <field name="name">Ahorro Cooperativa</field>
+            <field name="code">AHCOOP</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['AHCOOP'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_26')])]"/>
+        </record>
+
+        <!-- Regla Préstamo Cooperativa-->
+        <record id="hr_payroll.hr_salary_rule_PRECOOP" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">36</field>
+            <field name="name">Préstamo Cooperativa</field>
+            <field name="code">PRECOOP</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['PRECOOP'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_27')])]"/>
+        </record>
+
+        <!-- Regla Créditos Educativos-->
+        <record id="hr_payroll.hr_salary_rule_CREDEDU" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">37</field>
+            <field name="name">Créditos Educativos</field>
+            <field name="code">CREDEDU</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['CREDEDU'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_28')])]"/>
+        </record>
+
+        <!-- Regla Otros Descuentoss-->
+        <record id="hr_payroll.hr_salary_rule_OTDESC" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">38</field>
+            <field name="name">Otros Descuentos</field>
+            <field name="code">OTDESC</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = rule.sum_news(payslip, codes=['OTDESC'])</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval="[(6,0,[ref('hr_contract_news_concepts_29')])]"/>
+        </record>
+
+        <!-- Regla Impuesto sobre la renta-->
+        <record id="hr_salary_rule_ISR" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_7"/>
+            <field name="sequence">110</field>
+            <field name="name">Impuesto sobre la renta</field>
+            <field name="code">ISR</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = (payslip.payment_period == '2')</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_python_compute">#</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval=""/>
+        </record>
+
+        <!-- Regla Impuesto sobre la renta Condicion 1-->
+        <record id="hr_salary_rule_ISR1" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_7"/>
+            <field name="sequence">110</field>
+            <field name="name">Impuesto sobre la renta</field>
+            <field name="code">ISR1</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">if contract.schedule_pay=='bi-monthly' or contract.schedule_pay=='fortnightly':
+    # un año tiene 12 meses
+    result = (((categories.GROSS - categories.RETRIBD - categories.ALWND) + categories.OT)*12) &lt;= 416220.00
+else:
+    # si no se conoce el sistema de pago, no tomar en cuenta esta regla.
+    result = False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_python_compute">#</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="parent_rule_id" eval="hr_salary_rule_ISR"/>
+        </record>
+
+        <!-- Regla Impuesto sobre la renta Condicion 2-->
+        <record id="hr_salary_rule_ISR2" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_7"/>
+            <field name="sequence">110</field>
+            <field name="name">Impuesto sobre la renta</field>
+            <field name="code">ISR2</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">#REGLA #2
+if contract.schedule_pay=='bi-monthly' or contract.schedule_pay=='fortnightly':
+    # un año tiene 12 quincenas
+    result = ((((categories.BASIC + categories.ALW) - (categories.RETRIBD+ categories.ALWND)) + (categories.OT + categories.PARAMS))*12) &gt; 416220.01 and ((((categories.BASIC + categories.ALW) - (categories.RETRIBD+ categories.ALWND)) + (categories.OT + categories.PARAMS))*12) &lt;= 624329.00
+else:
+    # si no se conoce el sistema de pago, no tomar en cuenta esta regla.
+    result = False</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">factor = 0
+if contract.schedule_pay=='bi-monthly' or contract.schedule_pay=='fortnightly':
+    # un año tiene 12 quincenas
+    factor = 12
+else:
+    # si no se conoce el sistema de pago, no tomar en cuenta esta regla.
+    result = False
+
+result = (((((((categories.BASIC + categories.ALW)-(categories.RETRIBD+ categories.ALWND)) + categories.OT)*factor) - 416220.00) * 0.15) / 12) - categories.SAFISR</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="parent_rule_id" eval="hr_salary_rule_ISR"/>
+        </record>
+
+        <!-- Regla Impuesto sobre la renta Condicion 3-->
+        <record id="hr_salary_rule_ISR3" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_7"/>
+            <field name="sequence">110</field>
+            <field name="name">Impuesto sobre la renta</field>
+            <field name="code">ISR3</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">#REGLA #3
+if contract.schedule_pay=='bi-monthly' or contract.schedule_pay=='fortnightly':
+    # un año tiene 12 quincenas
+    result = ((((categories.BASIC + categories.ALW) - (categories.RETRIBD+ categories.ALWND)) + (categories.OT + categories.PARAMS))*12) &gt; 624329.01 and ((((categories.BASIC + categories.ALW) - (categories.RETRIBD+ categories.ALWND)) + (categories.OT + categories.PARAMS))*12) &lt;= 867123.00
+else:
+    # si no se conoce el sistema de pago, no tomar en cuenta esta regla.
+    result = False</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">factor = 0
+if contract.schedule_pay=='bi-monthly' or contract.schedule_pay=='fortnightly':
+    # un año tiene 12 meses
+    factor = 12
+else:
+    # si no se conoce el sistema de pago, no tomar en cuenta esta regla.
+    result = False
+
+result = ((31216.00 + ((((((categories.BASIC + categories.ALW) - (categories.RETRIBD+ categories.ALWND)) + categories.OT) * factor) - 624329.01) * 0.20)) / 12) - categories.SAFISR</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="parent_rule_id" eval="hr_salary_rule_ISR"/>
+        </record>
+
+        <!-- Regla Impuesto sobre la renta Condicion 4-->
+        <record id="hr_salary_rule_ISR4" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_7"/>
+            <field name="sequence">110</field>
+            <field name="name">Impuesto sobre la renta</field>
+            <field name="code">ISR4</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">#REGLA #4
+if contract.schedule_pay=='bi-monthly' or contract.schedule_pay=='fortnightly':
+    # un año tiene 12 quincenas
+    result = ((((categories.BASIC + categories.ALW) - (categories.RETRIBD+ categories.ALWND)) + (categories.OT + categories.PARAMS))*12) &gt;= 867123.01
+else:
+    # si no se conoce el sistema de pago, no tomar en cuenta esta regla.
+    result = False</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">factor = 0
+if contract.schedule_pay=='bi-monthly' or contract.schedule_pay=='fortnightly':
+    # un año tiene 12 quincenas
+    factor = 12
+else:
+    # si no se conoce el sistema de pago, no tomar en cuenta esta regla.
+    result = False
+# 79776.00 + el 25% del excedente de restar 867123.01
+result = ((79776.00 + ((((((categories.BASIC + categories.ALW) - (categories.RETRIBD+ categories.ALWND)) + categories.OT) * factor) - 867123.01) * 0.25)) / 12) - categories.SAFISR</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="parent_rule_id" eval="hr_salary_rule_ISR"/>
+        </record>
+
+        <!-- Regla Calcular novedades-->
+        <record id="hr_payroll.hr_salary_rule_CNN" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_10"/>
+            <field name="sequence">5</field>
+            <field name="name">Calcular Novedades</field>
+            <field name="code">CNN</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = payslip.compute_news()</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_python_compute">#</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval=""/>
+        </record>
+
+        <!-- Regla Vacaciones-->
+        <record id="hr_salary_rule_VAC" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="sequence">8</field>
+            <field name="name">Vacaciones</field>
+            <field name="code">VAC</field>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = payslip.pay_vacation == True</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_python_compute">#</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="employee_news_ids" eval=""/>
+        </record>
+
+        <!-- Regla Vacaciones Condicion 1-->
+        <record id="hr_salary_rule_VAC1" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="sequence">8</field>
+            <field name="name">Vacaciones</field>
+            <field name="code">VACR1</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = (contract.contract_days / 365) &lt; 1</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = (((contract.wage / 23.83) * ((14/12) * ((contract.contract_days/30)+1))) + (inputs.COM.amount / 12))</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="parent_rule_id" eval="hr_salary_rule_VAC"/>
+        </record>
+
+        <!-- Regla Vacaciones Condicion 1-->
+        <record id="hr_salary_rule_VAC2" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="sequence">8</field>
+            <field name="name">Vacaciones</field>
+            <field name="code">VACR2</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = (contract.contract_days / 365) &gt;= 1 and (contract.contract_days / 365) &lt;= 4</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = ((contract.wage / 23.83) * 14) + (((inputs.COM.amount / 12) / 23.83) * 14)</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="parent_rule_id" eval="hr_salary_rule_VAC"/>
+        </record>
+
+        <!-- Regla Vacaciones Condicion 2-->
+        <record id="hr_salary_rule_VAC3" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="sequence">8</field>
+            <field name="name">Vacaciones</field>
+            <field name="code">VACR3</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = (contract.contract_days / 365) &gt;= 5</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = ((contract.wage / 23.83) * 14) + (((inputs.COM.amount / 12) / 23.83) * 14)</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="parent_rule_id" eval="hr_salary_rule_VAC"/>
+        </record>
+
+        <!-- Regla Comisiones-->
+        <record id="hr_payroll.hr_salary_rule_COM" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="sequence">15</field>
+            <field name="name">Comisiones</field>
+            <field name="code">COM</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="condition_python">#</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.COM.amount</field>
+            <field name="account_credit" ref=""/>
+            <field name="account_debit" ref=""/>
+            <field name="input_ids" eval="[(0, 0,  {'name':'Comisiones', 'code':'COM'} )]"/>
+        </record>
+
+        <record id="hr_payroll_general_salary_structure_employee" model="hr.payroll.structure">
+            <field name="code">E.S.G.</field>
+            <field name="name">Estructura Salarial General</field>
+            <field eval="[(6, 0, [ref('hr_payroll.hr_rule_basic'), ref('hr_payroll.hr_rule_taxable'), ref('hr_payroll.hr_rule_net'),
+            ref('hr_payroll.hr_salary_rule_SFS'), ref('hr_payroll.hr_salary_rule_AFP'), ref('hr_payroll.hr_salary_rule_SFSAE'),
+            ref('hr_payroll.hr_salary_rule_SFSAE'), ref('hr_payroll.hr_salary_rule_AFPAE'), ref('hr_payroll.hr_salary_rule_RL'),
+            ref('hr_payroll.hr_salary_rule_IF'), ref('hr_payroll.hr_salary_rule_PARAMS'), ref('hr_payroll.hr_salary_rule_PQA'),
+            ref('hr_payroll.hr_salary_rule_SEGCOMP'), ref('hr_payroll.hr_salary_rule_ADSUEL'), ref('hr_payroll.hr_salary_rule_CXCEMP'),
+            ref('hr_payroll.hr_salary_rule_OPT'), ref('hr_payroll.hr_salary_rule_PLANFUN'), ref('hr_payroll.hr_salary_rule_SEGDENT'),
+            ref('hr_payroll.hr_salary_rule_UNIF'), ref('hr_payroll.hr_salary_rule_MEMCLUB'), ref('hr_payroll.hr_salary_rule_MEMGIM'),
+            ref('hr_payroll.hr_salary_rule_UTIL'), ref('hr_payroll.hr_salary_rule_AHCOOP'), ref('hr_payroll.hr_salary_rule_PRECOOP'),
+            ref('hr_payroll.hr_salary_rule_CREDEDU'), ref('hr_payroll.hr_salary_rule_OTDESC'), ref('hr_salary_rule_ISR'),
+            ref('hr_payroll.hr_salary_rule_CNN'), ref('hr_salary_rule_VAC'), ref('hr_payroll.hr_salary_rule_COM')])]" name="rule_ids"/>
+            <field name="parent_id" ref=""/>
+        </record>
+
+    </data>
+</openerp>

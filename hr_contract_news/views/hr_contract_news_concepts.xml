@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="hr_contract_news_concepts_form">
+			<field name="name">hr.contract.news.concepts.form</field>
+			<field name="model">hr_contract.news.concepts</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<form string="Contract News Concepts">
+                    <header>
+
+                    </header>
+                    <sheet>
+					<group name="hr_contract_news" string="Contract News Concepts">
+						<field name="active" />
+                        <field name="contract_new_category_id"/>
+                        <field name="code" />
+						<field name="name"/>
+                        <field name="description"/>
+                        <field name="special_new"/>
+					</group>
+                        <notebook>
+                            <page name="salary_rule" string="Salary Rules">
+                                <group>
+                                    <field name="salary_rule_ids" nolabel="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+				</form>
+			</field>
+		</record>
+
+		<record model="ir.ui.view" id="hr_contract_news_concepts_tree">
+			<field name="name">hr.contract.news.concepts.tree</field>
+			<field name="model">hr_contract.news.concepts</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree string="Contract News Concepts">
+					<field name="code" />
+					<field name="name"/>
+				</tree>
+			</field>
+		</record>
+
+        <record model="ir.actions.act_window" id="open_view_contract_news_concepts">
+			<field name="name">Contract News Concepts</field>
+			<field name="res_model">hr_contract.news.concepts</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+
+        <menuitem name="Contract News Concepts" action="open_view_contract_news_concepts"
+                  parent="hr_payroll.menu_hr_payroll_configuration"  id="menu_contract_news_concepts"
+                sequence="13"/>
+
+    </data>
+</openerp>
